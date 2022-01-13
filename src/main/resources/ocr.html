@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传图片翻译</title>
+</head>
+<body>
+    <div style="text-align:  padding-top: 50px">
+        <div style="font-size: 16px; color: #44A1F8;padding-bottom: 50px">上传图片翻译</div>
+        <input type="file" id="avatar" />
+        <select id="select">
+            <option value="1" selected>中文</option>
+            <option value="0">英文</option>
+        </select>
+        <button onclick="to_upload_file()">上传</button>
+        <br>
+         <br>
+          <br>
+        <div style="text-align: left;display: inline-block;width: 300px; height: 20px; border: 1px solid #44A1F8; border-radius: 2px;position: relative">
+            <div>
+                <textarea id="text" rows="50" cols="260"> 翻译内容 </textarea>
+            </div>
+        </div>
+        <div>
+            
+        </div>
+    </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vant@2.12/lib/vant.min.js"></script>
+        <script>
+            // 处理上传进度
+            function progressFunction(e){
+                var progress_bar = document.getElementById("progress_bar");
+                var loading_dom = document.getElementById("loading");
+                var loading = Math.round(e.loaded / e.total * 100);
+                console.log("loading::", loading);
+
+                if(loading === 100){
+                    loading_dom.innerHTML = "上传成功^_^";
+                }else{
+                    loading_dom.innerHTML = "上传进度"+loading+"%"
+                }
+                
+                progress_bar.style.width = String(loading * 3) + "px";
+            }
+            // 上传成功
+            function uploadComplete(e) {
+                console.log("上传成功！", e);
+            }
+            // 上传失败
+            function uploadFailed(e) {
+                console.log("上传失败", e);
+            }
+    
+            function to_upload_file(){
+                var file_obj = document.getElementById("avatar").files[0]
+                if(file_obj){
+                    var url = "http://localhost:8080/qcr";
+                    var form = new FormData();
+                     var loading_dom = document.getElementById("text");
+                    form.append("file", file_obj);
+                    var select = document.getElementById("select");
+                    form.append("chi", select.value);
+                     axios
+                        .post(url,form)
+                        .then(res => {
+                            // this.html=res.data;
+                            loading_dom.innerHTML = res.data;
+                            // console.log(this.html)
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                    // var xhr = new XMLHttpRequest();
+                    // xhr.onload = uploadComplete; // 添加 上传成功后的回调函数
+                    // xhr.onerror =  uploadFailed; // 添加 上传失败后的回调函数
+                    // xhr.upload.onprogress = progressFunction; // 添加 监听函数
+                    // xhr.open("POST", url, true);
+                    // xhr.send(form);
+                }else{
+                    alert("请先选择文件后再上传")
+                }
+            }
+        </script>
+</body>
+</html>
