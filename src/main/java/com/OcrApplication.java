@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 @SpringBootApplication
@@ -41,23 +42,37 @@ public class OcrApplication {
             // 指定识别图片
 //            File imgDir = new File(filePath);
             long startTime = System.currentTimeMillis();
-            BufferedImage image = ImageIO.read(file.getInputStream());
 
-            int width = image.getWidth();
-            int height = image.getHeight();
+            String originalFilename = file.getOriginalFilename();
+            //文件扩展名
+            int index = originalFilename.lastIndexOf(".");
+            String extensionName = index > 0 ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
 
-            BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);//重点，技巧在这个参数BufferedImage.TYPE_BYTE_GRAY
+            String ocrResult;
 
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    int rgb = image.getRGB(i, j);
-                    grayImage.setRGB(i, j, rgb);
+            if (extensionName.equals("png") || extensionName.equals("jpg") || extensionName.equals("jpeg")) {
+                BufferedImage image = ImageIO.read(file.getInputStream());
+
+                int width = image.getWidth();
+                int height = image.getHeight();
+
+                BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);//重点，技巧在这个参数BufferedImage.TYPE_BYTE_GRAY
+
+                for (int i = 0; i < width; i++) {
+                    for (int j = 0; j < height; j++) {
+                        int rgb = image.getRGB(i, j);
+                        grayImage.setRGB(i, j, rgb);
+                    }
                 }
-            }
-//        denoise(grayImage);
 
-            grayImage = ImageHelper.getScaledInstance(grayImage, grayImage.getWidth() * 5, grayImage.getHeight() * 5);
-            String ocrResult = instance.doOCR(grayImage);
+                grayImage = ImageHelper.getScaledInstance(grayImage, grayImage.getWidth() * 5, grayImage.getHeight() * 5);
+
+                ocrResult = instance.doOCR(grayImage);
+            } else {
+                File imgDir = File.createTempFile(originalFilename, extensionName);
+                file.transferTo(imgDir);
+                ocrResult = instance.doOCR(imgDir);
+            }
 
             // 输出识别结果
             System.out.println("OCR Result: \n" + ocrResult + "\n 耗时：" + (System.currentTimeMillis() - startTime) + "ms");
@@ -67,7 +82,6 @@ public class OcrApplication {
             } else {
                 return ocrResult;
             }
-
         }
     }
 }
