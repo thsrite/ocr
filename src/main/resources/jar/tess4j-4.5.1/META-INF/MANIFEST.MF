@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Created-By: Maven Jar Plugin 3.2.0
+Build-Jdk-Spec: 13
+Specification-Title: Tess4J - Tesseract for Java
+Specification-Version: 4.5
+Specification-Vendor: Tess4J
+Implementation-Title: Tess4J - Tesseract for Java
+Implementation-Version: 4.5.1
+Implementation-Vendor: Tess4J
+Implementation-URL: http://tess4j.sourceforge.net
+
+Name: Build-Information
+Os-Name: Windows 10
+Java-Vendor: Oracle Corporation
+Java-Version: 13.0.1
+
